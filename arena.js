@@ -45,9 +45,10 @@ var robot1_ai = {
 	name : function() {return "Stupid chatty"},
 	init : function() {},
 	tick : function(gameboard) {
-		function Short(num) { return Math.round(num * 100) / 100 };
+		function Short(num) { return Math.round(num * 10) / 10 };
 
-		gameboard.shoot(Math.random() * Math.PI*2, 50 + Math.rand*450); //Most of the time, there will be no grenade to shoot
+		//Most of the time, there will be no grenade to shoot in the magazine, but we can still try
+		gameboard.shoot(Math.random() * Math.PI*2, 50 + Math.rand*450); 
 
 		gameboard.stdout("Im at "+
 			Short(gameboard.x()) +","+
@@ -226,7 +227,7 @@ function get_gameboard_for_robot(robot) {
 		x :       function () { return robot.x },
 		y :       function () { return robot.y },
 		health:   function () { return robot.health },
-		time:     function () { return this.tick_count },
+		time:     function () { return tick_count },
 		magazine: function () { return this.shot_in_magazine},
 		stdout:   function (msg) { HTML_UpdateMessageForRobot(robot, msg)},
 
@@ -266,7 +267,7 @@ function get_gameboard_for_robot(robot) {
 		},
 
 		shoot : function (direction, distance) {
-			if(this.shot_in_magazine >= 1.0 && gameboard.shot_direction != null) {
+			if(this.shot_in_magazine >= 1.0 && this.shot_direction == null) {
 				this.shot_direction = direction;
 				this.shot_distance = distance;
 				this.shot_in_magazine -= 1;
