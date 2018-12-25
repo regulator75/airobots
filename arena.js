@@ -189,6 +189,8 @@ function create_grenade( x , y, direction, distance) {
 
 }
 
+
+
 var nextFreeRobotID = 1
 function create_robot(ai) {
 
@@ -202,7 +204,20 @@ function create_robot(ai) {
 		wanted_direction : Math.random() * Math.PI*2,	
 		health : 100.0,
 		ai : ai,
-		gameboard:null
+		gameboard:null,
+		initials: function() {
+			// Get the first two capital letters from the name
+			var name = ai.name()
+			var initials = "";
+			for(i in name ) {
+				var c = name.charAt(i)
+				if( (c >= 'A') && (c <= 'Z') ) {
+					initials += name[i]
+				}
+			}
+			// Keep the first two
+			return initials.slice(0,2)
+		}
 
 	}
 
@@ -294,8 +309,10 @@ function draw_robot( r, ctx ) {
 	ctx.arc(r.x, r.y, 5, 0, 2 * Math.PI);
 	ctx.stroke();
 	ctx.font = "10px Arial";
-	ctx.fillText("" + r.id, r.x-8, r.y-4); // Robot ID
-	ctx.fillText("" + Math.ceil(r.health) , r.x-8, r.y+12);
+	ctx.textAlign = "center"; 
+	ctx.fillText(r.initials(), r.x, r.y-5); // Robot ID 
+	ctx.fillText("" + Math.ceil(r.health) , r.x, r.y+12);
+
 
 	// Draw the scan so we can debug it
 	if(r.gameboard.scanned_direction != null) {
@@ -333,8 +350,6 @@ function draw_robot( r, ctx ) {
 	//	ctx.strokeStyle = ss
 	//}
 
-
-
 }
 
 function draw_grenade( g, ctx) {
@@ -360,7 +375,7 @@ function draw_grenade( g, ctx) {
 
 var border = 5;
 function move_robot( r , ctx)
- { 
+{ 
  	//Move the robot. 
  	r.x += r.speed * Math.sin(r.direction);
  	r.y += r.speed * Math.cos(r.direction);
@@ -533,7 +548,7 @@ function tick() {
 // HTML page generation stuff
 //
 //
-var RobotInfoTemplate = "<H4> ROBOTNAME </H4><div id=\"ROBOTNAME_msg\"> --- </div>";
+var RobotInfoTemplate = "<H4> [INITIALS] ROBOTNAME </H4><div id=\"ROBOTNAME_msg\"> --- </div>";
 
 function HTML_Reset() {
 	var L = document.getElementById("robotlist");
@@ -544,7 +559,7 @@ function HTML_AddRobotsToPage() {
 	var L = document.getElementById("robotlist");
 	for (ri in robots) {
 		var div = document.createElement('div');
-		div.innerHTML = RobotInfoTemplate.replace(/ROBOTNAME/g,robots[ri].ai.name())
+		div.innerHTML = RobotInfoTemplate.replace(/ROBOTNAME/g,robots[ri].ai.name()).replace(/INITIALS/g,robots[ri].initials())
 		L.appendChild(div)
 	}
 }
