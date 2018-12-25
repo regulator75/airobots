@@ -8,17 +8,21 @@
 //  
 //
 // Functions you should implement
-//  init() // Your constructor. Use "this" to store state
 //
-//  tick() // Called once per game round. 
+//  name()                 // The name of your robot. The first two capital letters of your
+//                         // name (A-Z) will be chosen for its initial
+//  
+//  init()                 // Your constructor. Use "this" to store state
+//
+//  tick()                 // Called once per game round. 
 //
 // Functions you can use in "gameboard", in your "tick"
 //  shoot(angle, distance) //  Will fire a grenade in the desired direction and it will explode after traveling "distance".
 //                         // The grenade speed is 7. Robot speeds are 1.5. Blast radius is 20. Damage is 50 at a perfect hit.
 //                         // A robot have 100 health.
 //                         // The grenade launcher will load one shell into the magazine every 20 clicks
-//	                       // The grenade launcher can hold 3 shells in its clip. Robot can shoot one shell per tick, 
-//                         // if there are one or more grenades in the magazine.
+//	                       // The grenade launcher can hold 3 shells in its magazine. Robot can shoot one shell per tick, 
+//                         // if there are one or more grenade in the magazine.
 // 
 //
 //  scan(direction, width) // Checks if there are any robots in that direction. The search area is "width" wide. 
@@ -26,12 +30,25 @@
 //                         // If there are robots within the scan arc, you will get the robot ID and the distance to it.
 //                         // Wider scan arc makes it easier to see robots, but the location will be less precise since
 //                         // you dont know the angle at where the robot is.
-//                
+//
+//  x()                    // Returns the X position of the robot
+//
+//  y()                    // Returns the X position of the robot
+//
+//  magazine()             // The number of shells ready to be fired. This is a floating numbers. A value of 1.5 means one
+//                         // shell is loaded and the next one will be ready to be fired in 10 clicks (since its 20 clicks
+//                         // between each reload)
+//
+//  health()               // The current integrity of the robot. 100 is good. 0 is dead.
+//
+//  time()                 // How many clicks that have passed so far
+// 
+//  stdout(msg)            // Displays a message below the robot name below the gameboard             
 //
 //  
 
 var YOUR_ROBOT_AI = {
-	name : function() {return "YOUR_ROBOT_AI"},
+	name : function() {return "Your Robot AI"},
 	init : function() {},
 	tick : function(gameboard) {
 		
