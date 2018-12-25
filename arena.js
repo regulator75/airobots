@@ -571,10 +571,20 @@ function HTML_UpdateMessageForRobot(robot, msg) {
 
 
 function runner() {
+
+	var runFast = document.getElementById("fastrun").checked
+	var keepOnRunning = document.getElementById("autorun").checked
+
 	if( tick() ) {	
-		var keepOnRunning = document.getElementById("autorun").checked
+		
 		if(keepOnRunning) {		
-			window.setTimeout(runner, 50);
+			var delayToNextFrame;
+			if(runFast) {
+				delayToNextFrame = 10;
+			} else {
+				delayToNextFrame = 50
+			}
+			window.setTimeout(runner, delayToNextFrame);
 		}
 	} else {
 		// Game over. Restart
