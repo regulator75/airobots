@@ -59,7 +59,7 @@ var YOUR_ROBOT_AI = {
 
 // Mr stupid. Keeps on walking until it hits a wall. Shoot in random directions
 var robot1_ai = {
-	name : function() {return "Stupid chatty"},
+	name : function() {return "Stupid Chatty"},
 	init : function() {},
 	tick : function(gameboard) {
 		function Short(num) { return Math.round(num * 10) / 10 };
@@ -98,7 +98,7 @@ var robot2_ai = {
 
 // Mr Drunk. Walks in a circle.
 var robot3_ai = {
-	name : function() {return "Circle walker"},
+	name : function() {return "Circle Walker"},
 	init : function() {
 		this.walkdir = 0;
 		this.walkchangepause = 4;
@@ -116,7 +116,7 @@ var robot3_ai = {
 // Mr Smartiepants. Chases enemies. Calculates how far to shoot given the delta distance from the last
 //                  scan and latest value, if its for the same robot.
 var robot4_ai = {
-	name : function() {return "Smartiepants"},	
+	name : function() {return "SmartiePants"},	
 	init : function() {
 		this.scan_dir = 0.0
 		this.scan_width = Math.PI*2 / 360*30;
@@ -155,12 +155,12 @@ var robot4_ai = {
 
 
 function create_robots() {
-	robots.push(create_robot(YOUR_ROBOT_AI));
-	robots.push(create_robot(robot1_ai));
-	robots.push(create_robot(robot2_ai));
-	robots.push(create_robot(robot3_ai));
-	robots.push(create_robot(robot4_ai));
-
+	var robotid = 0
+	robots.push(create_robot(robotid++, YOUR_ROBOT_AI));
+	robots.push(create_robot(robotid++, robot1_ai));
+	robots.push(create_robot(robotid++, robot2_ai));
+	robots.push(create_robot(robotid++, robot3_ai));
+	robots.push(create_robot(robotid++, robot4_ai));
 }
 
 //
@@ -184,6 +184,7 @@ function create_robots() {
 var robots = []
 var grenades = []
 var tick_count = 0
+var robot_wincounts = []
 
 
 var GrenadeMove = {
@@ -206,13 +207,10 @@ function create_grenade( x , y, direction, distance) {
 
 }
 
-
-
-var nextFreeRobotID = 1
-function create_robot(ai) {
+function create_robot(idr, ai) {
 
 	var toreturn = 	{
-		id : nextFreeRobotID++,
+		id : idr,
 		x: Math.random() * 400 + 50,
 		y: Math.random() * 400 + 50,
 		speed : 0.0,
@@ -554,6 +552,9 @@ function tick() {
 
 	if(robots.length < 2) {
 		// Only one or fewer survivors
+		if(robots.length == 1) {
+			HTML_IncreaseWin(robots[0]);
+		}
 		return false
 	} else {
 		return true
@@ -565,7 +566,7 @@ function tick() {
 // HTML page generation stuff
 //
 //
-var RobotInfoTemplate = "<H4> [INITIALS] ROBOTNAME </H4><div id=\"ROBOTNAME_msg\"> --- </div>";
+var RobotInfoTemplate = "<H4> [INITIALS] ROBOTNAME </H4>Wincount:<div id=\"ROBOTNAME_wincount\">0</div><br><div id=\"ROBOTNAME_msg\"> --- </div>";
 
 function HTML_Reset() {
 	var L = document.getElementById("robotlist");
@@ -583,6 +584,15 @@ function HTML_AddRobotsToPage() {
 
 function HTML_UpdateMessageForRobot(robot, msg) {
 	document.getElementById(robot.ai.name() + "_msg").innerHTML=msg;
+}
+
+function HTML_IncreaseWin(robot) {
+	// One more win
+	robot_wincounts[robot.id]++;
+
+	// Brag about it
+	document.getElementById(robot.ai.name() + "_wincount").innerHTML = ""+robot_wincounts[robot.id];
+
 }
 
 
@@ -639,6 +649,13 @@ function OnStep(num){
 
 function OnLoad() {
 	ResetStateAndLoadRobots();
+
+	// Creat the datastructure that hold the win-counts for each robot.
+	robot_wincounts = []
+	for(r in robots)
+		robot_wincounts.push(0); 
+
+
 	HTML_Reset();
 
 	HTML_AddRobotsToPage();
