@@ -29,6 +29,7 @@
 //  
 
 var YOUR_ROBOT_AI = {
+	name : function() {return "YOUR_ROBOT_AI"},
 	init : function() {},
 	tick : function(gameboard) {
 		
@@ -39,6 +40,7 @@ var YOUR_ROBOT_AI = {
 
 // Mr stupid. Keeps on walking until it hits a wall. Shoot in random directions
 var robot1_ai = {
+	name : function() {return "Stupid"},
 	init : function() {},
 	tick : function(gameboard) {
 		gameboard.shoot(Math.random() * Math.PI*2, 50 + Math.rand*450); //Most of the time, there will be no grenade to shoot
@@ -48,6 +50,7 @@ var robot1_ai = {
 
 // Mr Focus, looks in a narrow beam for enemies and shoots a grenade if it sees one
 var robot2_ai = {
+	name : function() {return "Mr Focus"},	
 	init : function() {
 		this.scan_dir = 0.0
 		this.scan_width = Math.PI*2 / 360*10;
@@ -65,6 +68,7 @@ var robot2_ai = {
 
 // Mr Drunk. Walks in a circle.
 var robot3_ai = {
+	name : function() {return "Circle walker"},
 	init : function() {
 		this.walkdir = 0;
 		this.walkchangepause = 4;
@@ -82,6 +86,7 @@ var robot3_ai = {
 // Mr Smartiepants. Chases enemies. Calculates how far to shoot given the delta distance from the last
 //                  scan and latest value, if its for the same robot.
 var robot4_ai = {
+	name : function() {return "Smartiepants"},	
 	init : function() {
 		this.scan_dir = 0.0
 		this.scan_width = Math.PI*2 / 360*30;
@@ -501,6 +506,25 @@ function tick() {
 	}
 }
 
+//
+//
+// HTML page generation stuff
+//
+//
+var RobotInfoTemplate = "<H4> ROBOTNAME </H4>";
+
+function HTML_AddRobotsToPage() {
+	var L = document.getElementById("robotlist");
+	for (ri in robots) {
+		var div = document.createElement('div');
+		div.innerHTML = RobotInfoTemplate.replace(/ROBOTNAME/g,robots[ri].ai.name())
+		L.appendChild(div)
+	}
+}
+
+
+
+
 function runner() {
 	if( tick() ) {		
 		window.setTimeout(runner, 50);
@@ -510,7 +534,8 @@ function runner() {
 	}
 }
 
-function OnLoad() {
+function ResetStateAndLoadRobots() 
+{
 	// Load robot data
 	robots = []
 	grenades = []
@@ -521,6 +546,15 @@ function OnLoad() {
 		robots[ri].ai.init()
 		robots[ri].gameboard = get_gameboard_for_robot(robots[ri]) // yeah..  circularity ftw.
 	}
+
+
+}
+
+
+function OnLoad() {
+	ResetStateAndLoadRobots();
+
+	HTML_AddRobotsToPage();
 
 	// Get the time moving
 	runner();
