@@ -50,7 +50,8 @@ var robot1_ai = {
 		//Most of the time, there will be no grenade to shoot in the magazine, but we can still try
 		gameboard.shoot(Math.random() * Math.PI*2, 50 + Math.rand*450); 
 
-		gameboard.stdout("Im at "+
+		gameboard.stdout("My health is "+
+			Short(gameboard.health()) + ". Im at "+
 			Short(gameboard.x()) +","+
 			Short(gameboard.x())+" with "+
 			Short(gameboard.magazine())+" shells loaded at time "+
