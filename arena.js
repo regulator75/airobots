@@ -16,7 +16,9 @@
 //  shoot(angle, distance) //  Will fire a grenade in the desired direction and it will explode after traveling "distance".
 //                         // The grenade speed is 7. Robot speeds are 1.5. Blast radius is 20. Damage is 50 at a perfect hit.
 //                         // A robot have 100 health.
-//                         // The grenade launcher will reload every 20 clicks (for everyone)
+//                         // The grenade launcher will load one shell into the magazine every 20 clicks
+//	                       // The grenade launcher can hold 3 shells in its clip. Robot can shoot one shell per tick, 
+//                         // if there are one or more grenades in the magazine.
 // 
 //
 //  scan(direction, width) // Checks if there are any robots in that direction. The search area is "width" wide. 
@@ -40,10 +42,18 @@ var YOUR_ROBOT_AI = {
 
 // Mr stupid. Keeps on walking until it hits a wall. Shoot in random directions
 var robot1_ai = {
-	name : function() {return "Stupid"},
+	name : function() {return "Stupid chatty"},
 	init : function() {},
 	tick : function(gameboard) {
+		function Short(num) { return Math.round(num * 100) / 100 };
+
 		gameboard.shoot(Math.random() * Math.PI*2, 50 + Math.rand*450); //Most of the time, there will be no grenade to shoot
+
+		gameboard.stdout("Im at "+
+			Short(gameboard.x()) +","+
+			Short(gameboard.x())+" with "+
+			Short(gameboard.magazine())+" shells loaded at time "+
+			Short(gameboard.time()))
 	}
 }
 
@@ -62,6 +72,7 @@ var robot2_ai = {
 		var radar_found = gameboard.scan(this.scan_dir, this.scan_width)
 		if(radar_found != null) {
 			gameboard.shoot(this.scan_dir, radar_found.distance); //Most of the time, there will be no grenade to shoot
+			gameboard.stdout("Shot!")
 		}
 	}
 }
@@ -162,6 +173,19 @@ var GrenadeMove = {
   FLYING: 3,
 };
 
+function create_grenade( x , y, direction, distance) {
+	grenades.push({
+		x : x,
+		y : y,
+		direction : direction,
+		distance_remaining : distance,
+		speed: 7,
+		state: GrenadeMove.FLYING,
+		damage : 50.0,
+		radius : 20.0
+	})
+
+}
 
 var nextFreeRobotID = 1
 function create_robot(ai) {
@@ -185,20 +209,6 @@ function create_robot(ai) {
 	return toreturn;
 }
 
-function create_grenade( x , y, direction, distance) {
-	grenades.push({
-		x : x,
-		y : y,
-		direction : direction,
-		distance_remaining : distance,
-		speed: 7,
-		state: GrenadeMove.FLYING,
-		damage : 50.0,
-		radius : 20.0
-	})
-
-}
-
 function get_gameboard_for_robot(robot) {
 	var gameboard_forrobot = {
 
@@ -212,6 +222,13 @@ function get_gameboard_for_robot(robot) {
 		shot_in_magazine : 1,
 
 		robot : robot,
+
+		x :       function () { return robot.x },
+		y :       function () { return robot.y },
+		health:   function () { return robot.health },
+		time:     function () { return this.tick_count },
+		magazine: function () { return this.shot_in_magazine},
+		stdout:   function (msg) { HTML_UpdateMessageForRobot(robot, msg)},
 
 
 		// return null, or an object containing distance and id {distance:distance, id:id}
@@ -249,7 +266,7 @@ function get_gameboard_for_robot(robot) {
 		},
 
 		shoot : function (direction, distance) {
-			if(this.shot_in_magazine >= 1.0) {
+			if(this.shot_in_magazine >= 1.0 && gameboard.shot_direction != null) {
 				this.shot_direction = direction;
 				this.shot_distance = distance;
 				this.shot_in_magazine -= 1;
@@ -440,8 +457,11 @@ function tick() {
 		robots[ri].gameboard.shot_direction = null;
 		robots[ri].gameboard.shot_distance = null;
 
-		// reload with a 20th of a clip
-		robots[ri].gameboard.shot_in_magazine += 1.0/20
+		// reload with a 20th of a clip, up to a max of 3
+		if(robots[ri].gameboard.shot_in_magazine < 3.0) {
+			robots[ri].gameboard.shot_in_magazine += 1.0/20
+		}
+		
 	}
 
 	//reload their radars
@@ -511,7 +531,12 @@ function tick() {
 // HTML page generation stuff
 //
 //
-var RobotInfoTemplate = "<H4> ROBOTNAME </H4>";
+var RobotInfoTemplate = "<H4> ROBOTNAME </H4><div id=\"ROBOTNAME_msg\"> --- </div>";
+
+function HTML_Reset() {
+	var L = document.getElementById("robotlist");
+	L.innerHTML="";
+}
 
 function HTML_AddRobotsToPage() {
 	var L = document.getElementById("robotlist");
@@ -522,6 +547,9 @@ function HTML_AddRobotsToPage() {
 	}
 }
 
+function HTML_UpdateMessageForRobot(robot, msg) {
+	document.getElementById(robot.ai.name() + "_msg").innerHTML=msg;
+}
 
 
 
@@ -530,7 +558,8 @@ function runner() {
 		window.setTimeout(runner, 50);
 	} else {
 		// Game over. Restart
-		OnLoad();
+		ResetStateAndLoadRobots();
+		runner();
 	}
 }
 
@@ -553,6 +582,7 @@ function ResetStateAndLoadRobots()
 
 function OnLoad() {
 	ResetStateAndLoadRobots();
+	HTML_Reset();
 
 	HTML_AddRobotsToPage();
 
@@ -564,10 +594,8 @@ function OnLoad() {
 //
 // TODO
 // 
-// Pretty title
 // Rules of the game in the main view
 // Compose a log of all win-loss
-// Allow AI robots to have a name. Default use the class name. Visible in the UI
 // Give robots their basic stats, like location and direction
 // Add magazine of 3
 // Penalty on changing direction
@@ -575,4 +603,5 @@ function OnLoad() {
 // Step-function to debug tanks.
 // Debug function to add travel distance, damage on blast etc.
 // Allow the UI to select what robots to include in the game, and then start.
+// Add Robot colors
 
