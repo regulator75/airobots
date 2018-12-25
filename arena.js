@@ -556,8 +556,11 @@ function HTML_UpdateMessageForRobot(robot, msg) {
 
 
 function runner() {
-	if( tick() ) {		
-		window.setTimeout(runner, 50);
+	if( tick() ) {	
+		var keepOnRunning = document.getElementById("autorun").checked
+		if(keepOnRunning) {		
+			window.setTimeout(runner, 50);
+		}
 	} else {
 		// Game over. Restart
 		ResetStateAndLoadRobots();
@@ -581,6 +584,16 @@ function ResetStateAndLoadRobots()
 
 }
 
+function OnCheckRun(){
+	if(document.getElementById("autorun").checked)
+		runner()
+}
+
+function OnStep(num){
+	var cnt = num
+	while(cnt-- > 0)
+		tick()
+}
 
 function OnLoad() {
 	ResetStateAndLoadRobots();
