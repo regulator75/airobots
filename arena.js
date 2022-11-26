@@ -33,7 +33,7 @@
 //
 //  x()                    // Returns the X position of the robot
 //
-//  y()                    // Returns the X position of the robot
+//  y()                    // Returns the Y position of the robot
 //
 //  magazine()             // The number of shells ready to be fired. This is a floating numbers. A value of 1.5 means one
 //                         // shell is loaded and the next one will be ready to be fired in 10 clicks (since its 20 clicks
